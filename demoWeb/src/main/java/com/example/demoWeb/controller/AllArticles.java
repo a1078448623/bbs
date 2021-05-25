@@ -3,10 +3,7 @@ package com.example.demoWeb.controller;
 
 import com.example.demoWeb.dao.ArticleDao;
 import com.example.demoWeb.dao.ComplexDao;
-import com.example.demoWeb.domain.ArticleBean;
-import com.example.demoWeb.domain.ArtitleDetailBean;
-import com.example.demoWeb.domain.RecommendBean;
-import com.example.demoWeb.domain.UserBean;
+import com.example.demoWeb.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -93,6 +90,37 @@ public class AllArticles {
     public String getTypeID(HttpSession session){
 
         return (String) session.getAttribute("current_type_id");
+    }
+
+    @ResponseBody
+    @RequestMapping("/orderArts")
+    public List<ArticleBean> orderArts(Integer orderBy, HttpSession session){
+        String type= (String) session.getAttribute("current_type_id");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM dd");
+        List<ArticleBean> allArts = articleDao.findAllArtsAndOrder(Integer.parseInt(type),orderBy);
+        if(allArts==null) return null;
+        for(ArticleBean ab:allArts){
+            ab.setNickname(articleDao.findNickName(ab.getAuth_id()));
+            ab.setContent("");
+            ab.setFormate_date(sdf.format(ab.getCre_time()));
+        }
+        return allArts;
+    }
+
+    @ResponseBody
+    @RequestMapping("/deleteArt")
+    public Boolean deleteArts (HttpSession session) {
+        int u_id = ((UserBean) session.getAttribute("user")).getU_id();
+        String currentArtId= (String) session.getAttribute("current_art_id");
+        return articleDao.deleteArt(u_id, Integer.parseInt(currentArtId));
+    }
+
+    @ResponseBody
+    @RequestMapping("/changeArt")
+    public boolean changeArt(PublishArticleBean publishArticleBean, HttpSession session){
+        int u_id = ((UserBean) session.getAttribute("user")).getU_id();
+        String currentArtId= (String) session.getAttribute("current_art_id");
+        return articleDao.changeArticle(publishArticleBean,currentArtId,u_id);
     }
 }
 

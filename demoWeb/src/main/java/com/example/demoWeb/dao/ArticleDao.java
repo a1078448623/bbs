@@ -15,4 +15,7 @@ public interface ArticleDao {
     String getType(int type_id);
     boolean addArticle(PublishArticleBean pab);
     List<RecommendBean> getMyArts(int u_id);
+    List<ArticleBean> findAllArtsAndOrder(int type, int orderBy);
+    Boolean deleteArt(int u_id, int art_id);
+    boolean changeArticle(PublishArticleBean pab, String cur_art_id, int u_id);
 }

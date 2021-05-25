@@ -10,10 +10,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
-public class ArticleDaoImpl implements ArticleDao{
+public class ArticleDaoImpl implements ArticleDao {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -74,5 +73,44 @@ public class ArticleDaoImpl implements ArticleDao{
 
     }
 
+    @Override
+    public List<ArticleBean> findAllArtsAndOrder(int type, int orderBy) {
+        try {
+            String sql = "select * from article where type_id = ? order by ?";
+            if (orderBy == 1) return jdbcTemplate.query(sql, new BeanPropertyRowMapper<ArticleBean>(ArticleBean.class), type, "comments");
+            else if (orderBy == 2) return jdbcTemplate.query(sql, new BeanPropertyRowMapper<ArticleBean>(ArticleBean.class), type, "likes");
+            else return jdbcTemplate.query(sql, new BeanPropertyRowMapper<ArticleBean>(ArticleBean.class), type, "cre_time");
+        } catch (DataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
+    public Boolean deleteArt(int u_id, int art_id) {
+        try {
+            String sql1 = "select auth_id from article where art_id = ?";
+            int auth_id = jdbcTemplate.queryForObject(sql1, Integer.class, art_id);
+            if (u_id == auth_id) {
+                String sql2 = "delete from article where art_id = ?";
+                return (1 == jdbcTemplate.update(sql2,art_id));
+            } else {
+                return false;
+            }
+        } catch (DataAccessException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean changeArticle(PublishArticleBean pab, String cur_art_id, int u_id) {
+        String sql1 = "select auth_id from article where art_id = ?";
+        int auth_id = jdbcTemplate.queryForObject(sql1, Integer.class, cur_art_id);
+        if (u_id == auth_id) {
+            String sql = "update article  set title = ?, content = ? where art_id = ?";
+            return jdbcTemplate.update(sql, pab.getTitle(), pab.getContent(), Integer.parseInt(cur_art_id)) > 0;
+        } else {
+            return false;
+        }
+    }
 
 }
