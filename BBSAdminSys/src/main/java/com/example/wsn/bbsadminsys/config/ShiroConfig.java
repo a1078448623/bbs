@@ -40,13 +40,14 @@ public class ShiroConfig {
     }
 
     @Bean(name = "securityManager")
-    public DefaultWebSecurityManager getDefaultWebSecurityManager(@Qualifier("userRealm") UserRealm userRealm){
+    public DefaultWebSecurityManager getDefaultWebSecurityManager(@Qualifier("userRealm") UserRealm userRealm,
+                                                                  @Qualifier("session") DefaultWebSessionManager defaultWebSessionManager){
         DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
         defaultWebSecurityManager.setRealm(userRealm);
-
+        defaultWebSecurityManager.setSessionManager(defaultWebSessionManager);
         return defaultWebSecurityManager;
     }
-    @Bean
+    @Bean(name = "session")
     public DefaultWebSessionManager defaultWebSessionManager(){
         DefaultWebSessionManager defaultWebSessionManager= new DefaultWebSessionManager();
         defaultWebSessionManager.setSessionIdUrlRewritingEnabled(false);
