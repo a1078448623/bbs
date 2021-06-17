@@ -35,4 +35,20 @@ public class RecommendArt {
         if(art_id!=null) session.setAttribute("current_art_id",art_id);
         return true;
     }
+//ajax直接请求 recom/sendFlag，数据格式{flag:__}
+    @ResponseBody
+    @RequestMapping("/sendFlag")
+    public boolean sendFlag(String flag,HttpSession session){
+        if(flag!=null) {
+            session.setAttribute("current_flag", flag);
+            return true;
+        }
+        else return false;
+    }
+
+    @ResponseBody
+    @RequestMapping("/getFlag")
+    public String getFlag(HttpSession session){
+        return (String) session.getAttribute("current_flag");
+    }
 }
